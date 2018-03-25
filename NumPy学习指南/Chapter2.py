@@ -23,6 +23,13 @@ print(t)
 print(t[0,:,0])
 print(t[1,...])
 
+# 创建自定义数据类型
+t = dtype([('name', str, 40), ('numitems', int32), ('price', float32)])
+print(t)
+print(t['name'])
+items = array([('Book1',42,3.14), ('Buffer',13,1.10)], dtype=t)
+print(items)
+
 # 数组的展开
 print(t[...,0:1])
 print(t[...,0:1].ravel())       # ravel返回一个数组的视图
