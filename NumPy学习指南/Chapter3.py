@@ -2,6 +2,7 @@
 
 import numpy as np
 import datetime
+import matplotlib.pyplot as plot
 
 i2 = np.eye(2)      # 生成一个单位矩阵
 print(i2)
@@ -81,4 +82,56 @@ print("价格最大平均值", averages.max(), "周几", averages.argmax())
 print("价格最小平均值", averages.min(), "周几", averages.argmin())
 print("数量最小平均值", counts.max(), "周几", counts.argmax())
 print("数量最小平均值", counts.min(), "周几", counts.argmin())
+
+# 简单移动平均线
+c = np.loadtxt("data.csv", delimiter=',', usecols=1, unpack=True)
+N = 5
+weights = np.ones(N)/N  # 生成权重
+sma = np.convolve(weights, c)[N-1:-N+1]    # 取出运算结果中间长度为N的数组，这部分是卷积运算时完全覆盖的部分
+t = np.arange(N-1, len(c))
+
+# 绘制曲线
+plot.plot(t, c[N-1:], lw=1.0)
+plot.plot(t, sma, lw=2.0)
+plot.show()
+
+# 指数移动平均线
+N = 5
+weights = np.exp(np.linspace(-1.,0.,N)) # 设置权重，其中linspace函数返回一个 指定范围内 指定个数 均匀分布的数组
+weights /= weights.sum()
+ema = np.convolve(weights, c)[N-1:-N+1]
+
+# 绘制曲线
+plot.plot(t, c[N-1:], lw=1.0)
+plot.plot(t, ema, lw=2.0)
+plot.show()
+
+# 布林带
+## 定义详见文档
+devs = list()
+C = len(c)
+
+for i in range(N-1, C):
+    if i+N < C:
+        dev = c[i:i+N]
+    else:
+        dev = c[-N:]
+    
+    averages = np.zeros(N)
+    averages.fill(sma[i-N-1])
+    dev = dev -averages
+    dev = dev ** 2
+    dev = np.sqrt(np.mean(dev))
+    devs.append(dev)
+
+devs = 2*np.array(devs)
+up = sma + devs
+low = sma - devs
+c1 = c[N-1:]
+
+plot.plot(t, c1, lw=1.0)
+plot.plot(t, sma, lw=2.0)
+plot.plot(t, up, lw=3.0)
+plot.plot(t, low, lw=4.0)
+plot.show()
 
